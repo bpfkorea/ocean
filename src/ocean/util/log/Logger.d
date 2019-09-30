@@ -56,7 +56,6 @@ import ocean.core.Verify;
 import ocean.core.ExceptionDefinitions;
 import ocean.io.model.IConduit;
 import ocean.text.convert.Formatter;
-import ocean.time.Clock;
 import ocean.util.log.Appender;
 import ocean.util.log.Event;
 import ocean.util.log.Hierarchy;
@@ -300,9 +299,10 @@ public struct Log
 
     ***************************************************************************/
 
-    public static void config (OutputStream stream, bool flush = true)
+    public static void defaultConfig ()
     {
-        This.root.add(new AppendStream(stream, flush));
+        import ocean.util.log.AppendConsole;
+        This.root.add(new AppendConsole());
     }
 
     /***************************************************************************
@@ -747,18 +747,6 @@ public final class Logger : ILogger
 
     /***************************************************************************
 
-        Returns:
-            Time since the program start
-
-    ***************************************************************************/
-
-    public TimeSpan runtime ()
-    {
-        return Clock.now - Clock.startTime();
-    }
-
-    /***************************************************************************
-
         Emit a textual log message from the given string
 
         Params:
@@ -772,7 +760,7 @@ public final class Logger : ILogger
 
     ***************************************************************************/
 
-    public Logger append (Level level, lazy cstring exp)
+    public Logger append (Level level, lazy cstring exp) @trusted
     {
         if (host_.context.enabled (level_, level))
         {
@@ -862,7 +850,7 @@ public final class Logger : ILogger
 
     ***************************************************************************/
 
-    public void format (Args...) (Level level, cstring fmt, Args args)
+    public void format (Args...) (Level level, cstring fmt, Args args) @safe
     {
         static if (Args.length == 0)
             this.append(level, fmt);
@@ -1034,10 +1022,4 @@ unittest
     test!("==")(appender.buffers[4].message,
                 "This is some arg fmt - 42 - object.Object - 1337.00");
     test!("==")(appender.buffers[5].message, "Just some more allocation tests");
-}
-
-unittest
-{
-    Logger log = (new Logger(Log.hierarchy(), "dummy")).additive(false);
-    test!(">=")(log.runtime(), TimeSpan.fromNanos(0));
 }
