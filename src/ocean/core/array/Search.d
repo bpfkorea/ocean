@@ -28,8 +28,6 @@ import ocean.core.Verify;
 import ocean.meta.traits.Basic;
 import ocean.meta.types.Qualifiers;
 
-import core.sys.posix.sys.types; // ssize_t;
-
 version (unittest)
 {
     import ocean.meta.types.Typedef;
@@ -1023,7 +1021,7 @@ unittest
     have duplicate elements. It checks if array A contains each item of array B
     using binary search. If T is a class or struct, comparison is performed
     using T.opCmp(). Otherwise, elements of T are compared using ">" and ">="
-    or, if T is compatible to size_t (which includes ssize_t, the signed version
+    or, if T is compatible to size_t (which includes ptrdiff_t, the signed version
     of size_t), by calculating the difference.
 
     If both of the arrays are sorted in the same way and don't contain different
@@ -1075,7 +1073,7 @@ unittest
     be pre-sorted in ascending order, the search will not work properly if it
     is not. If T is a class or struct, comparison is performed using T.opCmp().
     Otherwise, elements of T are compared using ">" and ">=" or, if T is
-    compatible to size_t (which includes ssize_t, the signed version of size_t),
+    compatible to size_t (which includes ptrdiff_t, the signed version of size_t),
     by calculating the difference.
 
     Template params:
@@ -1117,7 +1115,7 @@ unittest
     order, the search will not work properly if it is not.
     If T is a class or struct, comparison is performed using T.opCmp().
     Otherwise, elements of T are compared using ">" and ">=" or, if T is
-    compatible to size_t (which includes ssize_t, the signed version of size_t),
+    compatible to size_t (which includes ptrdiff_t, the signed version of size_t),
     by calculating the difference.
 
     Template params:
@@ -1148,7 +1146,7 @@ unittest
         true if the element was found in the array
 
     In:
-        array.length must be at most ssize_t.max (int.max if size_t is uint or
+        array.length must be at most ptrdiff_t.max (int.max if size_t is uint or
         long.max if size_t is ulong). TODO: Remove this restriction by
         rephrasing the implementation in bsearchCustom().
 
@@ -1170,17 +1168,17 @@ body
 {
     return bsearchCustom(
         array.length,
-        delegate ssize_t ( size_t i )
+        delegate ptrdiff_t ( size_t i )
         {
-            static if (is (T : size_t)) // will also be true if T is ssize_t
+            static if (is (T : size_t)) // will also be true if T is ptrdiff_t
             {
-                // If T is unsigned, check if cast (ssize_t) (0 - 1) == -1.
+                // If T is unsigned, check if cast (ptrdiff_t) (0 - 1) == -1.
                 // TODO: Is this behaviour guaranteed? If so, remove the
                 // check.
 
                 static if (T.min == 0)
                 {
-                    static assert (cast (ssize_t) (T.min - cast (T) 1) == -1,
+                    static assert (cast (ptrdiff_t) (T.min - cast (T) 1) == -1,
                                    "bsearch: 0 - 1 != -1 for type " ~ T.stringof);
                 }
 
@@ -1242,13 +1240,13 @@ unittest
         true if the element was found in the array
 
     In:
-        array_length must be at most ssize_t.max (int.max if size_t is uint or
+        array_length must be at most ptrdiff_t.max (int.max if size_t is uint or
         long.max if size_t is ulong). TODO: Remove this restriction by
         rephrasing the implementation so that min/max cannot be less than 0.
 
 *******************************************************************************/
 
-public bool bsearchCustom ( size_t array_length, scope ssize_t delegate ( size_t i ) cmp, out size_t position )
+public bool bsearchCustom ( size_t array_length, scope ptrdiff_t delegate ( size_t i ) cmp, out size_t position )
 out (found)
 {
     if (found)
@@ -1262,19 +1260,19 @@ out (found)
 }
 body
 {
-    verify(cast (ssize_t) array_length >= 0,
+    verify(cast (ptrdiff_t) array_length >= 0,
         "bsearchCustom: array_length integer overflow (maximum is " ~
-        ssize_t.stringof ~ ".max = " ~ ssize_t.max.stringof ~ ')');
+        ptrdiff_t.stringof ~ ".max = " ~ ptrdiff_t.max.stringof ~ ')');
 
     if ( array_length == 0 )
     {
         return false;
     }
 
-    ssize_t min = 0;
-    ssize_t max = array_length - 1;
+    ptrdiff_t min = 0;
+    ptrdiff_t max = array_length - 1;
 
-    ssize_t c = cmp(position = (min + max) / 2);
+    ptrdiff_t c = cmp(position = (min + max) / 2);
 
     while ( min <= max && c )
     {
