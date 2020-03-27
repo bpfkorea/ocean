@@ -49,10 +49,22 @@ private alias real NumType;
 
 private extern (C)
 {
-    real log10l (real x);
-    real ceill (real num);
-    real modfl (real num, real *i);
-    real powl  (real base, real exp);
+    version (Windows)
+    {
+        real log10 (real x);
+        real ceill (real num);
+        real modf (real num, real *i);
+        real powl  (real base, real exp);
+        alias log10l = log10;
+        alias modfl = modf;
+    }
+    else
+    {
+        real log10l (real x);
+        real ceill (real num);
+        real modfl (real num, real *i);
+        real powl  (real base, real exp);
+    }
 }
 
 /******************************************************************************

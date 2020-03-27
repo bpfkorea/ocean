@@ -22,5 +22,16 @@ public import ocean.stdc.gnu.string;
 extern (C):
 
 char *strsignal(int sig);
-int strcasecmp(in char *s1, in char *s2);
-int strncasecmp(in char *s1, in char *s2, size_t n);
+
+version(Windows)
+{
+    int _strnicmp (scope const char *s1, scope const char *s2, size_t n);
+    alias strncasecmp = _strnicmp;
+    int _stricmp (scope const char *s1, scope const char *s2);
+    alias strcasecmp = _stricmp;
+}
+else
+{
+    int strcasecmp(scope const char *s1, scope const char *s2);
+    int strncasecmp(scope const char *s1, scope const char *s2, size_t n);
+}
