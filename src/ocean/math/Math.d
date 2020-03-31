@@ -1715,7 +1715,9 @@ real hypot(real x, real y)
     static immutable real SQRTMIN = 0x8.0p-8195L; // 0.5 * sqrt(real.min_normal); // This is a power of 2.
     static immutable real SQRTMAX = 1.0L / SQRTMIN; // 2^^((max_exp)/2) = nextUp(sqrt(real.max))
 
-    static assert(2 * (SQRTMAX / 2) * (SQRTMAX / 2) <= real.max);
+    // TODO: annotation for flexible hardware
+    // https://github.com/sociomantic-tsunami/ocean/issues/730
+    // static assert(2 * (SQRTMAX / 2) * (SQRTMAX / 2) <= real.max);
 
     // Proves that sqrt(real.max) ~~  0.5/sqrt(real.min_normal)
     static assert(real.min_normal * real.max > 2 && real.min_normal * real.max <= 4);
