@@ -381,9 +381,47 @@ private void handle (T) (T v, FormatInfo f, scope FormatterSink sf, scope ElemSi
     static if (is(T == typeof(null)))
         se("null", f);
 
-    // Cannot print enum member name in D1, so just print the value
-    else static if (is (T V == enum))
-        handle!(V)(v, f, sf, se);
+
+    // Print enum member name - If `switch statement` is available
+    else static if (is(T V == enum) && canSwitchOn!(T))
+    {
+        sw: switch (v)
+        {
+            foreach (member; __traits(allMembers, T))
+            {
+                case mixin("T.", member):
+                    sf(T.stringof);
+                    sf(".");
+                    sf(member);
+                    break sw;
+            }
+            default :
+                sf("cast(");
+                sf(T.stringof);
+                sf(") ");
+                handle!(V)(v, f, sf, se);
+        }
+    }
+
+    // Print enum member name - If `switch statement` is not available
+    else static if (is(T E == enum))
+    {
+        foreach (member; __traits(allMembers, T))
+        {
+            if (v == mixin("T.", member))
+            {
+                sf(T.stringof);
+                sf(".");
+                sf(member);
+                return;
+            }
+        }
+
+        sf("cast(");
+        sf(T.stringof);
+        sf(") ");
+        handle!(E)(v, f, sf, se);
+    }
 
     // Delegate / Function pointers
     else static if (is(T == delegate))
@@ -910,4 +948,17 @@ private struct FormatInfo
     ***************************************************************************/
 
     public Flags flags;
+}
+
+/// Verify that the 'switch statement' is available
+private template canSwitchOn (T)
+{
+    enum canSwitchOn = is(typeof(() { switch (T.init) { default: break; }}));
+}
+
+unittest
+{
+    static assert(canSwitchOn!string);
+    static assert(canSwitchOn!(immutable int));
+    static assert(!canSwitchOn!(real));
 }
