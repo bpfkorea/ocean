@@ -422,11 +422,45 @@ unittest
         B = 1,
         FooBar = 42
     }
+    char[256] buffer;
+    Foo[] foo_inputs = [ Foo.FooBar, cast(Foo)1, cast(Foo)36 ];
+    string[] foo_outputs = [ "Foo.FooBar", "Foo.B", "cast(Foo) 36" ];
+    foreach (i, ref item; foo_inputs)
+        testNoAlloc(assert(snformat(buffer, "{}", item) == foo_outputs[i]));
 
-    Foo f = Foo.FooBar;
-    test("42" == format("{}", f));
-    f = cast(Foo)36;
-    test("36" == format("{}", f));
+    // Enums, EnumBaseType is string
+    enum FooA : string
+    {
+        a = "alpha",
+        b = "beta"
+    }
+    FooA[] fooa_inputs = [ FooA.a, cast(FooA)"beta", cast(FooA)"gamma" ];
+    string[] fooa_outputs = [ "FooA.a", "FooA.b", "cast(FooA) gamma" ];
+    foreach (i, ref item; fooa_inputs)
+        testNoAlloc(assert(snformat(buffer, "{}", item) == fooa_outputs[i]));
+
+    // Enums, EnumBaseType is real
+    enum FooB : real {
+        a = 1,
+        b = 1.41421,
+        c = 1.73205
+    }
+    FooB[] foob_inputs = [ FooB.a, cast(FooB)1.41421, cast(FooB)42 ];
+    string[] foob_outputs = [ "FooB.a", "FooB.b", "cast(FooB) 42.00" ];
+    foreach (i, ref item; foob_inputs)
+        testNoAlloc(assert(snformat(buffer, "{}", item) == foob_outputs[i]));
+
+    // Enums, EnumBaseType is struct
+    static struct S
+    {
+        int value;
+        int opCmp(S rhs) const nothrow { return value - rhs.value; }
+    }
+    enum FooC : S { a = S(1), b = S(2), c = S(3) }
+    FooC[] fooc_inputs = [ FooC.a, cast(FooC)S(2), cast(FooC)S(42) ];
+    string[] fooc_outputs = [ "FooC.a", "FooC.b", "cast(FooC) { value: 42 }" ];
+    foreach (i, ref item; fooc_inputs)
+        testNoAlloc(assert(snformat(buffer, "{}", item) == fooc_outputs[i]));
 
     // Chars
     static struct CharC { char c = 'H'; }
