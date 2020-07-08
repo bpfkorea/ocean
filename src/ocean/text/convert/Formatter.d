@@ -93,7 +93,7 @@ import ocean.meta.codegen.Identifier;
 
 *******************************************************************************/
 
-public alias void delegate(cstring) @safe FormatterSink;
+public alias void delegate(scope cstring) @safe FormatterSink;
 
 /*******************************************************************************
 

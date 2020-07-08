@@ -43,6 +43,22 @@ unittest
     test!("==")(buff[], "42");
 }
 
+// scope cstring
+unittest
+{
+    static struct Foo
+    {
+        int i = 0x2A;
+        void toString (scope void delegate (scope cstring) sink)
+        {
+            sink("Hello void");
+        }
+    }
+
+    Foo f;
+    test!("==")(format("{}", f), "Hello void");
+}
+
 /*******************************************************************************
 
     Original tango Layout unittest, minus changes of behaviour
