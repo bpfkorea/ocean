@@ -521,9 +521,6 @@ excludedSourceFiles \
     "src/ocean/util/log/Stats_slowtest.d" \
     "src/ocean/util/log/layout/LayoutStatsLog.d" \
     "src/ocean/util/log/model/ILogger.d" \
-    "src/ocean/util/prometheus/collector/Collector.d" \
-    "src/ocean/util/prometheus/collector/CollectorRegistry.d" \
-    "src/ocean/util/prometheus/collector/StatFormatter.d" \
     "src/ocean/util/prometheus/server/PrometheusHandler.d" \
     "src/ocean/util/prometheus/server/PrometheusListener.d" \
     "src/ocean/util/serialize/Version.d" \
